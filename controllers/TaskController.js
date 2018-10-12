@@ -1,4 +1,5 @@
 let Task = require("mongoose").model("Task");
+let User = require("mongoose").model("User");
 
 class TaskController{
 
@@ -46,7 +47,15 @@ class TaskController{
         task.save( (err)=>{
             if(err){return res.json(err);}
 
-            return res.json(task);
+            User.findOne( { _id:req.body.user  }, ( e,user )=>{
+                if(!user) return res.json(e);
+                user.tasks.push(task._id);
+
+                user.save( e=>{
+                    if(e) return res.json(e);
+                    return res.json(task);
+                } ); 
+            } )
         } );
     }
 
